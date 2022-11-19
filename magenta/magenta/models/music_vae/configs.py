@@ -134,6 +134,42 @@ CONFIG_MAP['hierdec-drum_4bar'] = Config(
         lstm_models.HierarchicalLstmDecoder(
             lstm_models.CategoricalLstmDecoder(),
             level_lengths=[8, 8],
+            disable_autoregression=False)),
+
+    hparams=merge_hparams(
+        lstm_models.get_default_hparams(),
+        HParams(
+            batch_size=512,
+            max_seq_len=64,
+            z_size=512,
+            enc_rnn_size=[512, 512],
+            dec_rnn_size=[256, 256],
+            free_bits=48,
+            max_beta=0.2,
+            sampling_schedule='inverse_sigmoid',
+            sampling_rate=1000,
+        )),
+
+    note_sequence_augmenter=None,
+
+    data_converter=data.DrumsConverter(
+        max_bars=100, slice_bars=4, gap_bars=1.0,
+        pitch_classes=None, add_end_token=False, steps_per_quarter=4,
+        quarters_per_bar=4, pad_to_total_time=False, roll_input=True,
+        roll_output=False, max_tensors_per_notesequence=5,
+        presplit_on_time_changes=True),
+        
+    train_examples_path=None,
+    eval_examples_path=None,
+)
+
+### hierdec-drum_4bar-no_ar
+CONFIG_MAP['hierdec-drum_4bar-no_ar'] = Config(
+    model=MusicVAE(
+        lstm_models.BidirectionalLstmEncoder(),
+        lstm_models.HierarchicalLstmDecoder(
+            lstm_models.CategoricalLstmDecoder(),
+            level_lengths=[8, 8],
             disable_autoregression=True)),
 
     hparams=merge_hparams(
