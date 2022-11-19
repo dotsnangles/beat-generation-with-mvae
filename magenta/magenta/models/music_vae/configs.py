@@ -127,12 +127,7 @@ CONFIG_MAP['cat-mel_2bar_med_chords'] = Config(
 )
 
 # Drums
-# drum_4bar_converter = data.OneHotMelodyConverter(
-#     skip_polyphony=False,
-#     max_bars=100,  # Truncate long melodies before slicing.
-#     slice_bars=4,
-#     steps_per_quarter=4)
-
+### hierdec-drum_4bar
 CONFIG_MAP['hierdec-drum_4bar'] = Config(
     model=MusicVAE(
         lstm_models.BidirectionalLstmEncoder(),
