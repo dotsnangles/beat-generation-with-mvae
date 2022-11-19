@@ -134,7 +134,8 @@ CONFIG_MAP['hierdec-drum_4bar'] = Config(
         lstm_models.HierarchicalLstmDecoder(
             lstm_models.CategoricalLstmDecoder(),
             level_lengths=[8, 8],
-            disable_autoregression=False)),
+            disable_autoregression=True)),
+
     hparams=merge_hparams(
         lstm_models.get_default_hparams(),
         HParams(
@@ -148,12 +149,16 @@ CONFIG_MAP['hierdec-drum_4bar'] = Config(
             sampling_schedule='inverse_sigmoid',
             sampling_rate=1000,
         )),
+
     note_sequence_augmenter=None,
+
     data_converter=data.DrumsConverter(
-        max_bars=100,  # Truncate long drum sequences before slicing.
-        slice_bars=4,
-        steps_per_quarter=4,
-        roll_input=True),
+        max_bars=100, slice_bars=4, gap_bars=1.0,
+        pitch_classes=None, add_end_token=False, steps_per_quarter=4,
+        quarters_per_bar=4, pad_to_total_time=False, roll_input=True,
+        roll_output=False, max_tensors_per_notesequence=5,
+        presplit_on_time_changes=True),
+        
     train_examples_path=None,
     eval_examples_path=None,
 )
