@@ -1,0 +1,15 @@
+*.pyc
+*.egg
+.eggs/
+.ipynb_checkpoints/
+*.swp
+*.egg-info/
+.cache/
+build/
+*.DS_Store
+.vscode
+.idea/
+
+__pycache__
+temp
+*.tar
