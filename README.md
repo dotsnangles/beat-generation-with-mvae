@@ -17,7 +17,7 @@
 - Magenta Project의 MusicVAE와 Groove MIDI Dataset을 활용하여 전처리와 모델 학습을 진행하고 4마디의 드럼 비트가 담긴 MIDI를 생성합니다.
 
 ## 개념 정리
-Autoencoder와 VAE의 가장 큰 차이는 Encoder의 출력이 single point인 latent representation인지 아니면 latent distribution인지에 있습니다. VAE는 최근에 확률/통계쪽을 살펴보며 보았던 확률 밀도 함수를 학습하는 느낌이라고도 볼 수 있을 것입니다. 실제로 정규분포의 평균과 표준편차가 코드에 반영되어 있는 것을 확인할 수 있으며, 생성시 영향을 미치는 Temperature 역시 출력 분포에 영향을 주기 위한 장치라고 이해할 수 있겠습니다.  
+Autoencoder와 VAE의 가장 큰 차이는 Encoder의 출력이 single point인 latent representation인지 아니면 latent distribution인지에 있습니다. VAE의 Encoder는 확률 밀도 함수를 학습한 모델이라고도 볼 수 있을 것입니다. 실제로 정규분포의 평균과 표준편차가 코드에 반영되어 있는 것을 확인할 수 있으며, 생성시 영향을 미치는 Temperature 역시 출력 분포에 영향을 주기 위한 장치라고 이해할 수 있겠습니다.  
 
 VAE는 Encoder의 출력인 확률 분포에서 Sampling을 수행하고 다시 Decoder를 통해 reconstruction을 진행하는 구조로 설계되었으며, 생성 모델로서 VAE가 좋은 성능을 발휘하기 위해서는 분포의 continuity와 completeness의 regularity를 확보해야 합니다. 이는 latent space에서 sampling한 point가 서로 가까울 수록 비슷하게 복원되어야 하고 복원된 모습은 목표로한 도메인에 적합한 의미를 가져야 한다는 뜻입니다.
 
