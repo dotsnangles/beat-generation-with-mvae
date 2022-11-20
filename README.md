@@ -1,4 +1,16 @@
 # beat-generation-with-mvae
+- results 폴더에 생성한 MIDI 파일들이 모여 있습니다. v1부터 v3까지가 개발한 모델로 생성한 파일들입니다.
+- training log는 save_model 폴더 안에 버전별로 training_log.txt의 이름으로 들어가 있습니다.
+- data_selection.ipynb 외에는 모두 Magenta 라이브러리의 스크립트 실행을 위한 파일들입니다.
+- magenta/magenta/models/music_vae/configs.py 안의 hierdec-drum_4bar, hierdec-drum_4bar_v2, hierdec-drum_4bar-no_ar가 제가 작성한 config들이며 실제로 사용된 것은 hierdec-drum_4bar, hierdec-drum_4bar_v2 두 가지입니다.
+- config의 내용과 더불어 개발 관련 사항은 개발 진행 순서에 최대한 자세히 정리해두었습니다.
+- 모델의 ckpt는 깃헙의 용량 제한 문제로 업로드하지 않았습니다. 필요하신 경우 말씀해주시면 보내드리도록 하겠습니다.
+- 개발 과정 중간에 ckpt를 .gitignore에 포함하지 않고 커밋을 해 push가 안 되는 상황이 발생해 시간 관계상 git을 새로 시작했습니다. 백업을 해둔 버전이 있으므로 필요하신 경우 보내드리도록 하겠습니다.
+
+## 목차
+- 목표
+- 개념 정리
+- 개발 진행 순서
 
 ## 목표
 - MusicVAE의 논문인 "A hierarchical recurrent variational autoencoder for music"의 내용을 이해하고 논문에서 제안하는 구조의 모델을 구축합니다.
@@ -123,7 +135,7 @@ MusicVAE를 통해 VAE를 처음 접했기에 사전 지식이 부족한 상태�
 - Since the model could not simply fall back on autoregression in the note decoder to optimize the loss during training, 
 - it gained a stronger reliance on the latent code to reconstruct the sequences.
 
-## 진행
+## 개발 진행 순서
 - MusicVAE의 논문에서 제안하는 모델의 컨셉을 파악
   - 저자가 실험에 사용한 Encoder의 구조는 2-layer BiLSTM Encoder이며, 
   - Hierarchical Decoder의 구조는 2-layer LSMTM의 Conductor와 2-layer LSMTM의 Decoder로 구성되어 있는 것을 확인
@@ -167,4 +179,8 @@ MusicVAE를 통해 VAE를 처음 접했기에 사전 지식이 부족한 상태�
   - DrumsConverter의 pitch_classes가 디폴트값인 REDUCED_DRUM_PITCH_CLASSES였기에 가상 악기 연주에는 해당 9개 클래스가 모두 있는 707 Core Kit을 사용
   - Crash와 Ride가 많은 샘플과 그렇지 않은 샘플 2개로 32마디 Interpolation을 진행했고 적당한 변주를 포함하여 자연스럽게 transition이 이뤄지는 것을 확인
 
-- 개념에 대해 추가 학습을 진행하며 latent vector에 대해 좀 더 이해하게 되었고 z_size를 512에서 256으로 조정한 뒤 v3 학습 진행
+- 개념에 대해 추가 학습을 진행하며 latent vector에 대해 좀 더 이해하게 되었고 z_size를 512에서 256으로 조정한 뒤 v3 학습 진행 (v3)
+  - v2와 동일한 데이터셋을 사용
+  - 구글드라이브 용량 문제로 6600 step까지 훈련을 진행 
+  - 최종 loss는 0.07263463을 기록
+  - 시간 관계상 8개의 MIDI를 샘플링한 후 청취해봤으며 interpolation은 생략함
