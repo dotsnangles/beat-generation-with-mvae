@@ -53,10 +53,10 @@ MusicVAE를 통해 VAE를 처음 접했기에 사전 지식이 부족한 상태�
 - the minimum of reconstruction error when decoding
 
 #### General Idea of Autoencoders
-- setting an encoder and a decoder as neural networks and 
+- consists in setting an encoder and a decoder as neural networks and 
 - to learn the best encoding-decoding scheme 
 - using an iterative optimisation process
-- compare the encoded-decoded output with the initial data and 
+- we compare the encoded-decoded output with the initial data and 
 - backpropagate the error through the architecture to update the weights of the networks
 - autoencoder architecture (encoder+decoder) creates a bottleneck for data 
 - that ensures only the main structured part of the information can go through and be reconstructed
