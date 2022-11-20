@@ -1,110 +1,125 @@
 # beat-generation-with-mvae
 
 ## 목표
-- MusicVAE의 논문인 "A hierarchical recurrent variational autoencoder for music"의 내용을 이해하고 논문에서 제안하는 구조의 모델을 구축한다.
-- Magenta Project의 MusicVAE와 Groove MIDI Dataset을 활용하여 전처리와 모델 학습을 진행하고 4마디의 드럼 비트가 담긴 MIDI를 생성한다.
+- MusicVAE의 논문인 "A hierarchical recurrent variational autoencoder for music"의 내용을 이해하고 논문에서 제안하는 구조의 모델을 구축합니다.
+- Magenta Project의 MusicVAE와 Groove MIDI Dataset을 활용하여 전처리와 모델 학습을 진행하고 4마디의 드럼 비트가 담긴 MIDI를 생성합니다.
 
-## 논문 내용 정리
+## 개념 정리
+Autoencoder와 VAE의 가장 큰 차이는 Encoder의 출력이 single point인 latent representation인지 아니면 latent distribution인지에 있습니다. VAE는 최근에 확률/통계쪽을 살펴보며 보았던 확률 밀도 함수를 학습하는 느낌이라고도 볼 수 있을 것입니다. 실제로 정규분포의 평균과 표준편차가 코드에 반영되어 있는 것을 확인할 수 있으며, 생성시 영향을 미치는 Temperature 역시 출력 분포에 영향을 주기 위한 장치라고 이해할 수 있겠습니다.  
 
-- VAE is an autoencoder whose encodings distribution is regularised during the training 
-- in order to ensure that its latent space has good properties allowing us to generate some new data. 
-- 
-- Moreover, the term “variational” comes from the close relation there is 
-- between the regularisation and the variational inference method in statistics.
-- 
-- What is an autoencoder? 
-- What is the latent space and 
-- why regularising it? 
-- How to generate new data from VAEs? 
-- What is the link between VAEs and variational inference?
+VAE는 Encoder의 출력인 확률 분포에서 Sampling을 수행하고 다시 Decoder를 통해 reconstruction을 진행하는 구조로 설계되었으며, 생성 모델로서 VAE가 좋은 성능을 발휘하기 위해서는 분포의 continuity와 completeness의 regularity를 확보해야 합니다. 이는 latent space에서 sampling한 point가 서로 가까울 수록 비슷하게 복원되어야 하고 복원된 모습은 목표로한 도메인에 적합한 의미를 가져야 한다는 뜻입니다.
 
+손실함수는 reconstruction과 regularisation 두 가지에 대한 것이며 전자는 encoding과 decoding을 효율적으로 수행하기 위한 것이고 후자는 latent space의 regularity를 높히기 위한 것입니다. 특히 후자는 출력 분포를 표준 정규 분포에 가깝게 만들기 위한 것으로 출력 분포와 표준 정규 분포 사이의 Kulback-Leibler divergence를 통해 표현됩니다. 가중치 업데이트는 다른 딥러닝 모델과 동일하게 역전파 기법을 사용합니다.
+
+"A hierarchical recurrent variational autoencoder for music"에서 제안한 개선 사항은 기존의 RNN Decoder에 conductor를 추가하는 것입니다. conductor가 먼저 latent code를 입력으로 받아 각 마디별로 embedding을 생성한 뒤 RNN Decoder가 각각의 embedding으로부터 마디를 생성하게 됩니다. 보다 나은 representation learning의 구조이기 때문에 기존의 RNN VAE가 가지고 있었던 sequence가 길어질 수록 성능이 떨어졌던 문제를 다소 극복할 수 있었습니다.
+
+MusicVAE를 통해 VAE를 처음 접했기에 사전 지식이 부족한 상태에서 VAE라는 구조의 기저에 어떤 개념들이 깔려 있는지를 파악하기 위해 다양한 자료를 탐색했습니다. "A hierarchical recurrent variational autoencoder for music"의 내용을 살펴본 뒤 추가로 참고하기 위해 논문들을 몇편 정리해두었으나 아직 그 내용을 모두 살펴보지는 못 했습니다.
+
+차원 축소와 Autoencoder부터 개념 정리를 해둔 [Understanding Variational Autoencoders (VAEs)](https://towardsdatascience.com/understanding-variational-autoencoders-vaes-f70510919f73)의 내용이 지금 저에게 가장 많은 통찰을 줄 것이라 판단하여 해당 문서를 중심으로 내용을 정리했으며, 금일 이후에 수학적 내용에 대해서 더 자세히 살펴볼 예정입니다.
+
+다음의 내용은 해당 문서의 개념 소개 중 주요한 내용을 정리한 것입니다.
+
+### Two Most Important Notations
+- random variable z
+- p(z) the distribution (or the density, depending on the context) of this random variable (z)
+
+### Autoencoder
 - dimensionality reduction and autoencoder
 - both ideas are related to each others
-
 - autoencoders cannot be used to generate new data
-- Variational Autoencoders that are regularised versions of autoencoders making the generative process possible
 
-- mathematical presentation of VAEs based on variational inference
+#### Encoder and Decoder
+- encoder: the process that produce the “new features” representation from the “old features” representation (by selection or by extraction)
+- decoder: the reverse process
+- encoder: compress the data (from the initial space to the encoded space, also called latent space)
+- decoder: decompress them
 
-- random variable z
-- p(z) the distribution (or the density, depending on the context) of this random variable
-
-- encoder the process that produce the “new features” representation from the “old features” representation (by selection or by extraction)
-- decoder the reverse process
-
-- encoder compress the data (from the initial space to the encoded space, also called latent space)
-- decoder decompress them
-
-- compression can be lossy, meaning that a part of the information is lost during the encoding process and cannot be recovered when decoding
+#### compression can be lossy, meaning that a part of the information is 
+- lost during the encoding process and cannot be recovered when decoding
 - among possible encoders and decoders, we are looking for the pair that keeps 
 - the maximum of information when encoding and, so, has 
 - the minimum of reconstruction error when decoding
 
-- general idea of autoencoders
-- setting an encoder and a decoder as neural networks and to learn the best encoding-decoding scheme using an iterative optimisation process
-- compare the encoded-decoded output with the initial data and backpropagate the error through the architecture to update the weights of the networks
-- autoencoder architecture (encoder+decoder) creates a bottleneck for data that ensures only the main structured part of the information can go through and be reconstructed
+#### General Idea of Autoencoders
+- setting an encoder and a decoder as neural networks and 
+- to learn the best encoding-decoding scheme 
+- using an iterative optimisation process
+- compare the encoded-decoded output with the initial data and 
+- backpropagate the error through the architecture to update the weights of the networks
+- autoencoder architecture (encoder+decoder) creates a bottleneck for data 
+- that ensures only the main structured part of the information can go through and be reconstructed
 
-- a variational autoencoder can be defined as being an autoencoder 
+### Variational Autoencoder
+- Variational Autoencoders that are regularised versions of autoencoders making the generative process possible
+- mathematical presentation of VAEs based on variational inference(?)
+- VAE is an autoencoder whose encodings distribution is regularised during the training 
+- in order to ensure that its latent space has good properties allowing us to generate some new data. 
+- Moreover, the term “variational” comes from the close relation there is 
+- between the regularisation and the variational inference method in statistics.
+
+#### a variational autoencoder can be defined as being an autoencoder 
 - whose training is regularised to avoid overfitting and 
 - ensure that the latent space has good properties that enable generative process
 
-- as a standard autoencoder, a variational autoencoder is an architecture 
+#### as a standard autoencoder, a variational autoencoder is an architecture 
 - composed of both an encoder and a decoder and 
 - that is trained to minimise the reconstruction error 
 - between the encoded-decoded data and the initial data.
 
-- in order to introduce some regularisation of the latent space, 
+#### in order to introduce some regularisation of the latent space, 
 - we proceed to a slight modification of the encoding-decoding process: 
 - instead of encoding an input as a single point, 
 - we encode it as a distribution over the latent space.
   
-- trained as follows:
-  - the input is encoded as distribution over the latent space
-  - a point from the latent space is sampled from that distribution
-  - the sampled point is decoded and the reconstruction error can be computed
-  - the reconstruction error is backpropagated through the network
+#### VAE is trained as follows:
+- the input is encoded as distribution over the latent space
+- a point from the latent space is sampled from that distribution
+- the sampled point is decoded and the reconstruction error can be computed
+- the reconstruction error is backpropagated through the network
 
-- Difference between autoencoder (deterministic) and variational autoencoder (probabilistic)
+#### Difference between autoencoder (deterministic) and variational autoencoder (probabilistic)
 ![Difference between autoencoder (deterministic) and variational autoencoder (probabilistic)](https://miro.medium.com/max/1400/1*ejNnusxYrn1NRDZf4Kg2lw@2x.png)  
 
 
-- the loss function that is minimised when training a VAE is composed of 
-  - a “reconstruction term” (on the final layer), that tends to make the encoding-decoding scheme as performant as possible, and 
-  - a “regularisation term” (on the latent layer), that tends to regularise the organisation of the latent space 
-  - by making the distributions returned by the encoder close to a standard normal distribution.
+#### the loss function that is minimised when training a VAE is composed of 
+- a “reconstruction term” (on the final layer), that tends to make the encoding-decoding scheme as performant as possible, and 
+- a “regularisation term” (on the latent layer), that tends to regularise the organisation of the latent space 
+- by making the distributions returned by the encoder close to a standard normal distribution.
 - That regularisation term is expressed as the Kulback-Leibler divergence between the returned distribution and a standard Gaussian
 
-- In variational autoencoders, the loss function is composed of 
+#### In variational autoencoders, the loss function is composed of 
 - a reconstruction term (that makes the encoding-decoding scheme efficient) and 
 - a regularisation term (that makes the latent space regular)
+
 ![In variational autoencoders, the loss function is composed of a reconstruction term (that makes the encoding-decoding scheme efficient) and a regularisation term (that makes the latent space regular)](https://miro.medium.com/max/1400/1*Q5dogodt3wzKKktE0v3dMQ@2x.png)
 
-- The regularity that is expected from the latent space 
+#### The regularity that is expected from the latent space 
 - in order to make generative process possible can be expressed through two main properties: 
 - continuity (two close points in the latent space should not give two completely different contents once decoded) and 
 - completeness (for a chosen distribution, a point sampled from the latent space should give “meaningful” content once decoded)
 
-- we have to regularise both the covariance matrix and the mean of the distributions returned by the encoder. 
+#### we have to regularise both the covariance matrix and the mean of the distributions returned by the encoder. 
 - In practice, this regularisation is done by 
 - enforcing distributions to be close to a standard normal distribution (centred and reduced). 
 - This way, we require 
 - the covariance matrices to be close to the identity, preventing punctual distributions, and 
 - the mean to be close to 0, preventing encoded distributions to be too far apart from each others.
 
-- The returned distributions of VAEs have to be regularised to obtain a latent space with good properties
+#### The returned distributions of VAEs have to be regularised to obtain a latent space with good properties
 ![The returned distributions of VAEs have to be regularised to obtain a latent space with good properties](https://miro.medium.com/max/1400/1*9ouOKh2w-b3NNOVx4Mw9bg@2x.png)
 
-- Regularisation tends to create a “gradient” over the information encoded in the latent space
+#### Regularisation tends to create a “gradient” over the information encoded in the latent space
 ![Regularisation tends to create a “gradient” over the information encoded in the latent space](https://miro.medium.com/max/1400/1*79AzftDm7WcQ9OfRH5Y-6g@2x.png)
 
-- Rather than using our latent code to initialize the note RNN decoder directly, 
-- we first pass the code to a “conductor” RNN that outputs a new embedding for each bar of the output. 
+
+### Hierarchical Decoder
+#### Rather than using the latent code to initialize the note RNN decoder directly, 
+- first pass the code to a “conductor” RNN that outputs a new embedding for each bar of the output. 
 - The note RNN then generates each of the 16 bars independently, 
 - conditioned on the embeddings instead of the latent code itself. 
-- We then sample autoregressively from the note decoder.
+- then sample autoregressively from the note decoder.
 
-- We found this conditional independence to be an important feature of our architecture. 
+#### this conditional independence is found to be an important feature of our architecture. 
 - Since the model could not simply fall back on autoregression in the note decoder to optimize the loss during training, 
 - it gained a stronger reliance on the latent code to reconstruct the sequences.
 
@@ -152,4 +167,4 @@
   - DrumsConverter의 pitch_classes가 디폴트값인 REDUCED_DRUM_PITCH_CLASSES였기에 가상 악기 연주에는 해당 9개 클래스가 모두 있는 707 Core Kit을 사용
   - Crash와 Ride가 많은 샘플과 그렇지 않은 샘플 2개로 32마디 Interpolation을 진행했고 적당한 변주를 포함하여 자연스럽게 transition이 이뤄지는 것을 확인
 
-- 개념에 대해 추가 학습을 진행하며 latent variable에 대해 좀 더 이해하게 되었고 z_size를 512에서 256으로 조정한 뒤 v3 학습 진행
+- 개념에 대해 추가 학습을 진행하며 latent vector에 대해 좀 더 이해하게 되었고 z_size를 512에서 256으로 조정한 뒤 v3 학습 진행
