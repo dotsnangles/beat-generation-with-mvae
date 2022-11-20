@@ -138,7 +138,7 @@ MusicVAE를 통해 VAE를 처음 접했기에 사전 지식이 부족한 상태�
 ## 개발 진행 순서
 - MusicVAE의 논문에서 제안하는 모델의 컨셉을 파악
   - 저자가 실험에 사용한 Encoder의 구조는 2-layer BiLSTM Encoder이며, 
-  - Hierarchical Decoder의 구조는 2-layer LSMTM의 Conductor와 2-layer LSMTM의 Decoder로 구성되어 있는 것을 확인
+  - Hierarchical Decoder의 구조는 2-layer LSTM의 Conductor와 2-layer LSTM의 Decoder로 구성되어 있는 것을 확인
 
 - 과제의 우선 순위를 MIDI 생성에 두고 Magenta Project내 MusicVAE의 구성 요소를 탐색
   - 데이터 전처리부터 모델 정의, 학습, 생성에 이르기까지 모든 작업과 관련된 코드가 준비가 되어 있는 것을 파악
