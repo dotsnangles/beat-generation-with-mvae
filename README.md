@@ -6,6 +6,26 @@
 
 ## 논문 내용 정리
 
+- VAE is an autoencoder whose encodings distribution is regularised during the training in order to ensure that its latent space has good properties allowing us to generate some new data. Moreover, the term “variational” comes from the close relation there is between the regularisation and the variational inference method in statistics.
+- What is an autoencoder? What is the latent space and why regularising it? How to generate new data from VAEs? What is the link between VAEs and variational inference?
+- dimensionality reduction and autoencoder
+- both ideas are related to each others
+- autoencoders cannot be used to generate new data
+- Variational Autoencoders that are regularised versions of autoencoders making the generative process possible
+- mathematical presentation of VAEs based on variational inference
+- random variable z
+- p(z) the distribution (or the density, depending on the context) of this random variable
+- encoder the process that produce the “new features” representation from the “old features” representation (by selection or by extraction)
+- decoder the reverse process
+- encoder compress the data (from the initial space to the encoded space, also called latent space)
+- decoder decompress them
+- compression can be lossy, meaning that a part of the information is lost during the encoding process and cannot be recovered when decoding
+- among possible encoders and decoders, we are looking for the pair that keeps the maximum of information when encoding and, so, has the minimum of reconstruction error when decoding
+- general idea of autoencoders
+- setting an encoder and a decoder as neural networks and to learn the best encoding-decoding scheme using an iterative optimisation process
+- compare the encoded-decoded output with the initial data and backpropagate the error through the architecture to update the weights of the networks
+- autoencoder architecture (encoder+decoder) creates a bottleneck for data that ensures only the main structured part of the information can go through and be reconstructed
+- 
 
 ## 진행
 - MusicVAE의 논문에서 제안하는 모델의 컨셉을 파악
@@ -37,14 +57,14 @@
 - Groove MIDI Dataset 전체를 tfrecord로 변환한 뒤 v1 훈련을 진행
   - VAE 훈련 경험이 없었기 때문에 디폴트값인 200000 steps로 훈련을 진행하며 loss를 관찰하고 ckpt마다 MIDI 생성을 시도해보기로 함
   - learning_rate, decay_rate, min_learning_rate 역시 마찬가지로 디폴트값을 적용하여 진행 (각각 0.001, 0.9999, 0.00001)
-  - logging 및 ckpt save는 100 step 단위를 유지했으며 loss는 0 step에서 399.31445, 100 step에서 158.26624를 기록한 뒤 차차 낮아지는 양상을 보임
+  - logging 및 ckpt save는 100 step 단위를 유지했으며 loss가 0 step에서 399.31445, 100 step에서 158.26624를 기록한 뒤 차차 낮아지는 양상을 보이는 것을 관찰
   - 훈련은 GPU 사용을 위해 코랩에서 이루어졌으며 제한 시간으로 인해 11200 step까지 진행
   - 11200 step에서 loss는 0.20408921을 기록
   - 훈련을 진행하면서 점차 샘플의 품질이 나아지는 것을 느낄 수 있었으나 최종 스텝의 ckpt로도 장르나 스타일이 뒤섞인 듯한 느낌을 받음
   
 - 장르와 스타일을 고려해 데이터를 선택적으로 훈련에 사용해보기로 함 (v2)
   - Groove MIDI Dataset의 파일명에 장르와 BPM, 연주 스타일, 박자의 정보가 존재하여 이를 기준으로 데이터를 편집
-  - 장르는 rock, 연주 스타일은 beat로 고정했으며 BPM은 훈련과 샘플링에 영향을 미치지 않는 요소로 판단하여 배제
+  - 장르는 rock, 연주 스타일은 beat로 고정했으며 BPM은 훈련과 샘플링에 영향을 미치지 않는 요소로 판단하여 선택 기준에서 배제
   - v1과 config는 동일했으며 구글드라이브 용량 문제로 7700 step까지 훈련을 진행
   - 최종 loss는 0.05041269를 기록
   - 4마디로 생성한 8개 샘플 모두 rock beat로 느껴지는 품질 향상을 경험
