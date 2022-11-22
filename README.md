@@ -5,7 +5,7 @@
 - magenta/magenta/models/music_vae/configs.py 안의 hierdec-drum_4bar, hierdec-drum_4bar_v2, hierdec-drum_4bar-no_ar가 제가 작성한 config들이며 실제로 사용된 것은 hierdec-drum_4bar, hierdec-drum_4bar_v2 두 가지입니다.
 - config의 내용과 더불어 개발 관련 사항은 개발 진행 순서에 최대한 자세히 정리해두었습니다.
 - 모델의 ckpt는 깃헙의 용량 제한 문제로 업로드하지 않았습니다. 필요하신 경우 말씀해주시면 보내드리도록 하겠습니다.
-- 개발 과정 중간에 ckpt를 .gitignore에 포함하지 않고 커밋을 해 push가 안 되는 상황이 발생해 시간 관계상 git을 새로 시작했습니다. 백업을 해둔 버전이 있으므로 필요하신 경우 보내드리도록 하겠습니다.
+- 개발 과정 중간에 ckpt를 .gitignore에 포함하지 않고 커밋을 해 push가 안 되는 상황이 발생하였고 시간 관계상 git을 새로 시작했습니다. 백업을 해둔 버전이 있으므로 필요하신 경우 보내드리도록 하겠습니다.
 
 ## 목차
 - 목표
